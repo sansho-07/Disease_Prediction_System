@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cancer Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🎗 Cancer Prediction</h1>
+
+<form action="/predict_cancer" method="POST">
+
+<input type="number" step="any" name="radius" placeholder="Mean Radius" required>
+
+<input type="number" step="any" name="texture" placeholder="Mean Texture" required>
+
+<input type="number" step="any" name="perimeter" placeholder="Mean Perimeter" required>
+
+<input type="number" step="any" name="area" placeholder="Mean Area" required>
+
+<input type="number" step="any" name="smoothness" placeholder="Mean Smoothness" required>
+
+<input type="number" step="any" name="compactness" placeholder="Mean Compactness" required>
+
+<button type="submit">Predict</button>
+
+</form>
+
+</div>
+
+</body>
+</html>

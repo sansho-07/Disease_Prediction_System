@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Heart Disease</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>❤️ Heart Disease Prediction</h1>
+
+<form action="/predict_heart" method="POST">
+
+<input type="number" name="age" placeholder="Age" required>
+
+<select name="sex">
+<option value="1">Male</option>
+<option value="0">Female</option>
+</select>
+
+<select name="cp">
+<option value="0">Typical Angina</option>
+<option value="1">Atypical Angina</option>
+<option value="2">Non-Anginal Pain</option>
+<option value="3">Asymptomatic</option>
+</select>
+
+<input type="number" name="trestbps" placeholder="Blood Pressure" required>
+
+<input type="number" name="chol" placeholder="Cholesterol" required>
+
+<select name="fbs">
+<option value="1">Fasting Blood Sugar > 120</option>
+<option value="0">Normal</option>
+</select>
+
+<input type="number" name="thalach" placeholder="Max Heart Rate" required>
+
+<select name="exang">
+<option value="1">Exercise Angina Yes</option>
+<option value="0">Exercise Angina No</option>
+</select>
+
+<button type="submit">Predict</button>
+
+</form>
+
+</div>
+
+</body>
+</html>
