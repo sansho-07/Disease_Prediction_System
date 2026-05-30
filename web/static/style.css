@@ -1,0 +1,64 @@
+body {
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+    text-align: center;
+}
+
+.tab-buttons button {
+    background: #3b82f6;
+    color: white;
+    padding: 10px 15px;
+    margin: 5px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.tab-buttons button:hover {
+    background: #2563eb;
+}
+
+.tab-content {
+    display: none;
+    background: #1e293b;
+    margin: 20px auto;
+    padding: 20px;
+    width: 60%;
+    border-radius: 10px;
+}
+
+input, select {
+    width: 90%;
+    padding: 8px;
+    margin: 5px;
+}
+
+button[type="submit"] {
+    background: #22c55e;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.result {
+    background: #334155;
+    margin: 20px auto;
+    padding: 20px;
+    width: 60%;
+    border-radius: 10px;
+}
+
+.result-box {
+  background: #1c2c3d;
+  border-left: 4px solid #1c4c43;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 24px;
+}
+.risk-low-risk  { color: #1D9E75; font-weight: bold; }
+.risk-medium-risk { color: #BA7517; font-weight: bold; }
+.risk-high-risk { color: #993C1D; font-weight: bold; }
+.disclaimer { font-size: 12px; color: #888; font-style: italic; margin-top: 12px; }
