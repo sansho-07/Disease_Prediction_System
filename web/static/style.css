@@ -1,64 +1,576 @@
+/* ═══════════════════════════════════════════════════════════════
+   Multi-Disease AI Prediction System — Global Styles
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Reset & base ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:          #0b1120;
+  --surface:     #111827;
+  --card:        #1a2236;
+  --card-hover:  #1f2a42;
+  --border:      #2a3a55;
+  --text:        #e2e8f0;
+  --muted:       #8899aa;
+  --accent-h:    #ef4444;   /* heart  — red   */
+  --accent-d:    #a855f7;   /* diabetes — purple */
+  --accent-c:    #ec4899;   /* cancer — pink  */
+  --green:       #22c55e;
+  --yellow:      #f59e0b;
+  --red:         #ef4444;
+  --radius:      12px;
+  --shadow:      0 4px 24px rgba(0,0,0,.45);
+  --transition:  .2s ease;
+}
+
+html { scroll-behavior: smooth; }
+
 body {
-    font-family: Arial;
-    background: #0f172a;
-    color: white;
-    text-align: center;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
 }
 
-.tab-buttons button {
-    background: #3b82f6;
-    color: white;
-    padding: 10px 15px;
-    margin: 5px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
+/* ── Scrollbar ────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--surface); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── Layout wrapper ───────────────────────────────────────────── */
+.page-wrapper {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 16px 60px;
 }
 
-.tab-buttons button:hover {
-    background: #2563eb;
+/* ── Header ───────────────────────────────────────────────────── */
+.site-header {
+  text-align: center;
+  padding: 32px 0 24px;
+}
+.site-header h1 {
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: -.5px;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.site-header p {
+  color: var(--muted);
+  font-size: .95rem;
+  margin-top: 6px;
+}
+.header-nav { margin-top: 14px; }
+.header-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: .85rem;
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  transition: var(--transition);
+}
+.header-nav a:hover { color: var(--text); border-color: #60a5fa; }
+
+/* ── Landing prompt ───────────────────────────────────────────── */
+.landing-prompt {
+  margin-bottom: 32px;
+  animation: fadeIn .35s ease;
 }
 
+.landing-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 18px;
+}
+@media (max-width: 640px) {
+  .landing-grid { grid-template-columns: 1fr; }
+}
+
+.landing-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 32px 20px 24px;
+  background: var(--card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  font-family: inherit;
+  color: var(--text);
+}
+.landing-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+}
+.heart-card:hover    { border-color: #ef4444; }
+.diabetes-card:hover { border-color: #a855f7; }
+.cancer-card:hover   { border-color: #ec4899; }
+
+.landing-icon { font-size: 2.8rem; line-height: 1; }
+
+.landing-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -.2px;
+}
+.heart-card    .landing-title { color: #f87171; }
+.diabetes-card .landing-title { color: #c084fc; }
+.cancer-card   .landing-title { color: #f472b6; }
+
+.landing-desc {
+  font-size: .82rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.landing-cta {
+  margin-top: 6px;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .4px;
+  opacity: .6;
+  transition: opacity .2s;
+}
+.landing-card:hover .landing-cta { opacity: 1; }
+
+.landing-hint {
+  text-align: center;
+  font-size: .82rem;
+  color: var(--muted);
+}
+
+/* ── Back / Change button ─────────────────────────────────────── */
+.back-btn {
+  border-color: var(--border) !important;
+  color: var(--muted) !important;
+  font-size: .85rem !important;
+  padding: 8px 16px !important;
+}
+.back-btn:hover {
+  border-color: #60a5fa !important;
+  color: var(--text) !important;
+}
+
+/* ── Tab buttons ──────────────────────────────────────────────── */
+.tab-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border: 2px solid var(--border);
+  border-radius: 50px;
+  background: var(--card);
+  color: var(--muted);
+  font-size: .95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.tab-btn:hover { border-color: #60a5fa; color: var(--text); transform: translateY(-1px); }
+.tab-btn.active { color: #fff; border-color: transparent; }
+.tab-btn.active.heart-btn    { background: linear-gradient(135deg,#ef4444,#b91c1c); }
+.tab-btn.active.diabetes-btn { background: linear-gradient(135deg,#a855f7,#7c3aed); }
+.tab-btn.active.cancer-btn   { background: linear-gradient(135deg,#ec4899,#be185d); }
+
+/* ── Error banner ─────────────────────────────────────────────── */
+.error-box {
+  background: rgba(239,68,68,.12);
+  border: 1px solid rgba(239,68,68,.4);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  color: #fca5a5;
+  font-size: .9rem;
+}
+
+/* ── Tab content card ─────────────────────────────────────────── */
 .tab-content {
-    display: none;
-    background: #1e293b;
-    margin: 20px auto;
-    padding: 20px;
-    width: 60%;
-    border-radius: 10px;
+  display: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: var(--shadow);
+  animation: fadeIn .25s ease;
+}
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+
+.tab-content h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-input, select {
-    width: 90%;
-    padding: 8px;
-    margin: 5px;
+/* ── Form grid ────────────────────────────────────────────────── */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 20px;
+}
+@media (max-width: 560px) { .form-grid { grid-template-columns: 1fr; } }
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.form-group.full-width { grid-column: 1 / -1; }
+
+.form-group label {
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
 }
 
-button[type="submit"] {
-    background: #22c55e;
-    color: white;
-    padding: 10px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.result {
-    background: #334155;
-    margin: 20px auto;
-    padding: 20px;
-    width: 60%;
-    border-radius: 10px;
-}
-
-.result-box {
-  background: #1c2c3d;
-  border-left: 4px solid #1c4c43;
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 9px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 20px;
-  margin-top: 24px;
+  color: var(--text);
+  font-size: .95rem;
+  transition: var(--transition);
+  appearance: none;
+  -webkit-appearance: none;
 }
-.risk-low-risk  { color: #1D9E75; font-weight: bold; }
-.risk-medium-risk { color: #BA7517; font-weight: bold; }
-.risk-high-risk { color: #993C1D; font-weight: bold; }
-.disclaimer { font-size: 12px; color: #888; font-style: italic; margin-top: 12px; }
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(96,165,250,.15);
+}
+.form-group input::placeholder { color: var(--muted); }
+
+/* Patient ID row */
+.patient-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.patient-row label { font-size: .85rem; color: var(--muted); white-space: nowrap; }
+.patient-row input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: .9rem;
+}
+.patient-row input:focus { outline: none; }
+
+/* ── Submit button ────────────────────────────────────────────── */
+.submit-row { grid-column: 1 / -1; margin-top: 6px; }
+
+.btn-predict {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  letter-spacing: .3px;
+  position: relative;
+  overflow: hidden;
+}
+.btn-predict::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background .15s;
+}
+.btn-predict:hover::after { background: rgba(255,255,255,.08); }
+.btn-predict:active { transform: scale(.98); }
+
+.btn-heart    { background: linear-gradient(135deg,#ef4444,#b91c1c); color:#fff; }
+.btn-diabetes { background: linear-gradient(135deg,#a855f7,#7c3aed); color:#fff; }
+.btn-cancer   { background: linear-gradient(135deg,#ec4899,#be185d); color:#fff; }
+
+/* ── Result card ──────────────────────────────────────────────── */
+.result-card {
+  margin-top: 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  animation: fadeIn .3s ease;
+}
+
+.result-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.result-header h3 { font-size: 1.05rem; font-weight: 700; }
+
+.badge {
+  padding: 5px 14px;
+  border-radius: 50px;
+  font-size: .8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.badge-low    { background: rgba(34,197,94,.15);  color: #4ade80; border: 1px solid rgba(34,197,94,.3); }
+.badge-medium { background: rgba(245,158,11,.15); color: #fbbf24; border: 1px solid rgba(245,158,11,.3); }
+.badge-high   { background: rgba(239,68,68,.15);  color: #f87171; border: 1px solid rgba(239,68,68,.3); }
+
+.result-body { padding: 20px; }
+
+/* Diagnosis row */
+.diagnosis-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  font-size: 1rem;
+}
+.diagnosis-positive { background: rgba(239,68,68,.1);  border: 1px solid rgba(239,68,68,.25); }
+.diagnosis-negative { background: rgba(34,197,94,.1);  border: 1px solid rgba(34,197,94,.25); }
+.diagnosis-icon { font-size: 1.4rem; }
+
+/* Probability bar */
+.prob-section { margin-bottom: 22px; }
+.prob-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: .82rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.prob-label span:last-child { font-weight: 700; color: var(--text); font-size: .95rem; }
+.prob-track {
+  height: 10px;
+  background: var(--border);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.prob-fill {
+  height: 100%;
+  border-radius: 5px;
+  width: 0;
+  transition: width 1s cubic-bezier(.4,0,.2,1);
+}
+.prob-fill-low    { background: linear-gradient(90deg,#16a34a,#22c55e); }
+.prob-fill-medium { background: linear-gradient(90deg,#d97706,#f59e0b); }
+.prob-fill-high   { background: linear-gradient(90deg,#dc2626,#ef4444); }
+
+/* SHAP/LIME factors header */
+.explainer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.explainer-badge {
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+}
+.badge-shap {
+  background: rgba(96,165,250,.15);
+  color: #60a5fa;
+  border: 1px solid rgba(96,165,250,.35);
+}
+.badge-lime {
+  background: rgba(52,211,153,.15);
+  color: #34d399;
+  border: 1px solid rgba(52,211,153,.35);
+}
+
+/* Factor block wrapper */
+.factor-block { margin-bottom: 14px; }
+
+/* SHAP factors */
+.factors-title {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.factor-item {
+  display: grid;
+  grid-template-columns: 140px 1fr 60px;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+@media (max-width: 480px) {
+  .factor-item { grid-template-columns: 1fr; gap: 4px; }
+}
+.factor-name {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.factor-value {
+  font-size: .75rem;
+  font-weight: 400;
+  color: var(--muted);
+  font-family: 'Courier New', monospace;
+}
+.factor-track {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.factor-fill {
+  height: 100%;
+  border-radius: 4px;
+  width: 0;
+  transition: width .9s cubic-bezier(.4,0,.2,1) .2s;
+}
+.factor-fill-up   { background: linear-gradient(90deg,#ef4444,#f87171); }
+.factor-fill-down { background: linear-gradient(90deg,#22c55e,#4ade80); }
+.factor-score {
+  font-size: .8rem;
+  color: var(--muted);
+  text-align: right;
+  white-space: nowrap;
+}
+.direction-arrow {
+  font-size: .7rem;
+  margin-right: 2px;
+}
+
+/* Why box */
+.why-box {
+  margin-top: 6px;
+  padding: 8px 12px;
+  background: rgba(96,165,250,.07);
+  border-left: 3px solid #60a5fa;
+  border-radius: 0 6px 6px 0;
+  font-size: .82rem;
+  color: #93c5fd;
+  line-height: 1.5;
+}
+
+/* Disclaimer */
+.disclaimer {
+  margin-top: 18px;
+  padding: 10px 14px;
+  background: rgba(245,158,11,.07);
+  border: 1px solid rgba(245,158,11,.2);
+  border-radius: 8px;
+  font-size: .78rem;
+  color: #fbbf24;
+  text-align: center;
+}
+
+/* Recommendation (from explainable AI engine) */
+.recommendation-box {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: rgba(99,102,241,.08);
+  border: 1px solid rgba(99,102,241,.25);
+  border-radius: 8px;
+  font-size: .85rem;
+  color: #a5b4fc;
+  line-height: 1.5;
+}
+
+/* ── History page ─────────────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  text-align: center;
+}
+.stat-card .stat-num { font-size: 2rem; font-weight: 800; }
+.stat-card .stat-label { font-size: .8rem; color: var(--muted); margin-top: 4px; }
+
+.history-table-wrap { overflow-x: auto; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .88rem;
+}
+th {
+  background: var(--card);
+  padding: 10px 14px;
+  text-align: left;
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(42,58,85,.5);
+  vertical-align: top;
+}
+tr:hover td { background: var(--card-hover); }
+.disease-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: .75rem;
+  font-weight: 700;
+}
+.tag-heart    { background: rgba(239,68,68,.15);  color:#f87171; }
+.tag-diabetes { background: rgba(168,85,247,.15); color:#c084fc; }
+.tag-cancer   { background: rgba(236,72,153,.15); color:#f472b6; }
+
+/* ── Utility ──────────────────────────────────────────────────── */
+.text-muted { color: var(--muted); }
+.mt-4 { margin-top: 16px; }
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}

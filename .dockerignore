@@ -1,0 +1,27 @@
+# Version control
+.git
+.gitignore
+
+# Python cache
+__pycache__
+*.py[cod]
+*.pyo
+.pytest_cache
+
+# Notebooks & dev artefacts
+notebooks/
+*.ipynb
+*.ipynb_checkpoints
+
+# Local env / IDE
+.venv
+venv/
+.env
+.vscode
+.DS_Store
+
+# Raw data (large CSVs not needed at runtime — models are pre-trained)
+data/raw/
+
+# Docs
+README.md

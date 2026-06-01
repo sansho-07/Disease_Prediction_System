@@ -1,255 +1,435 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Multi-Disease AI Prediction System</title>
-    <link rel="stylesheet" href="/static/style.css">
-
-    <script>
-        function showTab(tabId) {
-
-            // hide result when switching tab (optional clean UX)
-            let result = document.getElementById("result-box");
-            if (result) result.style.display = "none";
-
-            let tabs = document.getElementsByClassName("tab-content");
-
-            for (let i = 0; i < tabs.length; i++) {
-                tabs[i].style.display = "none";
-            }
-
-            document.getElementById(tabId).style.display = "block";
-        }
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedAI — Disease Prediction System</title>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
-
 <body>
 
-<h1>🏥 Multi-Disease AI Prediction System</h1>
+{# ── Jinja2 macro: result card ── #}
+{% macro result_card(result, disease, title) %}
+{% set rl = result.risk_level | lower | replace(' ', '-') %}
+{% set pct = (result.probability * 100) | round(1) %}
+{% set max_impact = (result.explanation | map(attribute='abs_impact') | list or [1]) | max %}
 
-<!-- ================= TAB BUTTONS ================= -->
-<div class="tab-buttons">
+<div class="result-card" id="result-{{ disease }}">
+  <div class="result-header">
+    <h3>{{ title }} — Result</h3>
+    <span class="badge badge-{{ rl }}">{{ result.risk_level }}</span>
+  </div>
 
-    <button onclick="showTab('heart')">❤️ Heart</button>
-    <button onclick="showTab('diabetes')">🩸 Diabetes</button>
-    <button onclick="showTab('cancer')">🎗 Cancer</button>
+  <div class="result-body">
 
-</div>
+    <!-- Diagnosis -->
+    {% if disease == "heart" %}
+      {% if result.prediction == 1 %}
+      <div class="diagnosis-row diagnosis-positive">
+        <span class="diagnosis-icon">⚠️</span>
+        <span>Heart disease indicators detected</span>
+      </div>
+      {% else %}
+      <div class="diagnosis-row diagnosis-negative">
+        <span class="diagnosis-icon">✅</span>
+        <span>No significant heart disease indicators</span>
+      </div>
+      {% endif %}
+    {% elif disease == "diabetes" %}
+      {% if result.prediction == 1 %}
+      <div class="diagnosis-row diagnosis-positive">
+        <span class="diagnosis-icon">⚠️</span>
+        <span>Diabetes risk indicators detected</span>
+      </div>
+      {% else %}
+      <div class="diagnosis-row diagnosis-negative">
+        <span class="diagnosis-icon">✅</span>
+        <span>No significant diabetes indicators</span>
+      </div>
+      {% endif %}
+    {% else %}
+      {% if result.prediction == 0 %}
+      <div class="diagnosis-row diagnosis-positive">
+        <span class="diagnosis-icon">⚠️</span>
+        <span>Malignant characteristics detected</span>
+      </div>
+      {% else %}
+      <div class="diagnosis-row diagnosis-negative">
+        <span class="diagnosis-icon">✅</span>
+        <span>Benign — no malignancy detected</span>
+      </div>
+      {% endif %}
+    {% endif %}
 
-<!-- ================= HEART ================= -->
-<div id="heart" class="tab-content">
+    <!-- Probability bar -->
+    <div class="prob-section">
+      <div class="prob-label">
+        <span>Model Confidence</span>
+        <span>{{ pct }}%</span>
+      </div>
+      <div class="prob-track">
+        <div class="prob-fill prob-fill-{{ rl }}"
+             data-width="{{ pct }}"
+             style="width:0%"></div>
+      </div>
+    </div>
 
-<h2>❤️ Heart Disease Prediction</h2>
+    <!-- Explainer method badge + top features -->
+    <div class="explainer-header">
+      <span class="factors-title">🔬 Top 3 Contributing Features</span>
+      {% if result.explainer_method == "SHAP" %}
+      <span class="explainer-badge badge-shap" title="SHAP TreeExplainer — exact per-prediction importance">SHAP</span>
+      {% elif result.explainer_method == "LIME" %}
+      <span class="explainer-badge badge-lime" title="LIME TabularExplainer — model-agnostic approximation">LIME</span>
+      {% endif %}
+    </div>
 
-<form action="/predict/heart" method="post">
-
-<label>Age (20–100)</label>
-<input name="age" type="number" min="20" max="100" required>
-
-<label>Sex</label>
-<select name="sex">
-    <option value="1">Male</option>
-    <option value="0">Female</option>
-</select>
-
-<label>Chest Pain Type</label>
-<select name="cp">
-    <option value="0">Typical Angina</option>
-    <option value="1">Atypical Angina</option>
-    <option value="2">Non-anginal</option>
-    <option value="3">Asymptomatic</option>
-</select>
-
-<label>Blood Pressure (80–200)</label>
-<input name="trestbps" type="number" min="80" max="200">
-
-<label>Cholesterol (100–600)</label>
-<input name="chol" type="number" min="100" max="600">
-
-<label>Fasting Blood Sugar</label>
-<select name="fbs">
-    <option value="0">No</option>
-    <option value="1">Yes</option>
-</select>
-
-<label>Rest ECG</label>
-<select name="restecg">
-    <option value="0">Normal</option>
-    <option value="1">ST-T abnormality</option>
-    <option value="2">LV hypertrophy</option>
-</select>
-
-<label>Max Heart Rate (60–220)</label>
-<input name="thalach" type="number" min="60" max="220">
-
-<label>Exercise Angina</label>
-<select name="exang">
-    <option value="0">No</option>
-    <option value="1">Yes</option>
-</select>
-
-<label>Oldpeak (0–6)</label>
-<input name="oldpeak" type="number" step="0.1" min="0" max="6">
-
-<label>Slope</label>
-<select name="slope">
-    <option value="0">Upsloping</option>
-    <option value="1">Flat</option>
-    <option value="2">Downsloping</option>
-</select>
-
-<label>Major Vessels (0–3)</label>
-<select name="ca">
-    <option value="0">0</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-</select>
-
-<label>Thal</label>
-<select name="thal">
-    <option value="0">Normal</option>
-    <option value="1">Fixed defect</option>
-    <option value="2">Reversible defect</option>
-</select>
-
-<br><br>
-<button type="submit">Predict Heart Risk</button>
-
-</form>
-</div>
-
-<!-- ================= DIABETES ================= -->
-<div id="diabetes" class="tab-content">
-
-<h2>🩸 Diabetes Prediction</h2>
-
-<form action="/predict/diabetes" method="post">
-
-<label>Pregnancies (0–20)</label>
-<input name="pregnancies" type="number" min="0" max="20">
-
-<label>Glucose (50–200)</label>
-<input name="glucose" type="number" min="50" max="200">
-
-<label>Blood Pressure (40–140)</label>
-<input name="blood_pressure" type="number" min="40" max="140">
-
-<label>Skin Thickness (0–100)</label>
-<input name="skin_thickness" type="number" min="0" max="100">
-
-<label>Insulin (0–900)</label>
-<input name="insulin" type="number" min="0" max="900">
-
-<label>BMI (10–70)</label>
-<input name="bmi" type="number" step="0.1" min="10" max="70">
-
-<label>Diabetes Pedigree (0–2.5)</label>
-<input name="dpf" type="number" step="0.01" min="0" max="2.5">
-
-<label>Age</label>
-<input name="age" type="number" min="1" max="120">
-
-<br><br>
-<button type="submit">Predict Diabetes Risk</button>
-
-</form>
-</div>
-
-<!-- ================= CANCER ================= -->
-<div id="cancer" class="tab-content">
-
-<h2>🎗 Breast Cancer Prediction (Smart Input)</h2>
-
-<form action="/predict/cancer" method="post">
-
-<label>Mean Radius</label>
-<input name="radius" type="number" step="0.01" required>
-
-<label>Mean Texture</label>
-<input name="texture" type="number" step="0.01" required>
-
-<label>Mean Perimeter</label>
-<input name="perimeter" type="number" step="0.01" required>
-
-<label>Mean Area</label>
-<input name="area" type="number" step="0.01" required>
-
-<label>Mean Smoothness</label>
-<input name="smoothness" type="number" step="0.0001" required>
-
-<br><br>
-<button type="submit">Predict Cancer Risk</button>
-
-</form>
-
-</div>
-
-<!-- ================= RESULT ================= -->
-<!-- Heart result -->
-{% if heart_result %}
-<div class="result-box">
-  <h2>Heart Disease — Prediction Result</h2>
-  <p class="risk-{{ heart_result.risk_level | lower | replace(' ', '-') }}">
-    Risk Level: {{ heart_result.risk_level }}
-  </p>
-  <p>Probability: {{ (heart_result.probability * 100) | round(1) }}%</p>
-  <p>Diagnosis: {% if heart_result.prediction == 1 %}
-    <strong>Heart disease likely present</strong>
-  {% else %}
-    <strong>No heart disease detected</strong>
-  {% endif %}</p>
-  <ul>
-    {% for item in heart_result.explanation %}
-    <li>{{ item }}</li>
+    {% for item in result.explanation %}
+    {% set bar_pct = ((item.abs_impact / max_impact) * 100) | round(1) if max_impact > 0 else 0 %}
+    <div class="factor-block">
+      <div class="factor-item">
+        <div class="factor-name">
+          {{ item.feature_name }}
+          {% if item.input_value != none %}
+          <span class="factor-value">= {{ item.input_value }}</span>
+          {% endif %}
+        </div>
+        <div class="factor-track">
+          <div class="factor-fill factor-fill-{{ 'up' if item.direction == 'increases' else 'down' }}"
+               data-width="{{ bar_pct }}"
+               style="width:0%"></div>
+        </div>
+        <div class="factor-score">
+          <span class="direction-arrow">{{ '▲' if item.direction == 'increases' else '▼' }}</span>{{ item.abs_impact }}
+        </div>
+      </div>
+      <div class="why-box">💡 {{ item.why }}</div>
+    </div>
     {% endfor %}
-  </ul>
-  <p class="disclaimer">⚠ This is a demonstration model and not a medical diagnosis.</p>
-</div>
-{% endif %}
 
-<!-- Diabetes result -->
-{% if diabetes_result %}
-<div class="result-box">
-  <h2>Diabetes — Prediction Result</h2>
-  <p class="risk-{{ diabetes_result.risk_level | lower | replace(' ', '-') }}">
-    Risk Level: {{ diabetes_result.risk_level }}
-  </p>
-  <p>Probability: {{ (diabetes_result.probability * 100) | round(1) }}%</p>
-  <p>Diagnosis: {% if diabetes_result.prediction == 1 %}
-    <strong>Diabetes likely present</strong>
-  {% else %}
-    <strong>No diabetes detected</strong>
-  {% endif %}</p>
-  <ul>
-    {% for item in diabetes_result.explanation %}
-    <li>{{ item }}</li>
-    {% endfor %}
-  </ul>
-  <p class="disclaimer">⚠ This is a demonstration model and not a medical diagnosis.</p>
-</div>
-{% endif %}
+    <!-- Recommendation -->
+    {% if result.recommendation %}
+    <div class="recommendation-box">
+      <strong>📋 Recommendation:</strong> {{ result.recommendation }}
+    </div>
+    {% endif %}
 
-<!-- Cancer result -->
-{% if cancer_result %}
-<div class="result-box">
-  <h2>Breast Cancer — Prediction Result</h2>
-  <p class="risk-{{ cancer_result.risk_level | lower | replace(' ', '-') }}">
-    Risk Level: {{ cancer_result.risk_level }}
-  </p>
-  <p>Probability: {{ (cancer_result.probability * 100) | round(1) }}%</p>
-  <p>Diagnosis: {% if cancer_result.prediction == 0 %}
-    <strong>Malignant — cancer likely detected</strong>
-  {% else %}
-    <strong>Benign — no cancer detected</strong>
-  {% endif %}</p>
-  <ul>
-    {% for item in cancer_result.explanation %}
-    <li>{{ item }}</li>
-    {% endfor %}
-  </ul>
-  <p class="disclaimer">⚠ This is a demonstration model and not a medical diagnosis.</p>
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      ⚠️ This is a machine learning demonstration and <strong>not a medical diagnosis</strong>.
+      Always consult a qualified healthcare professional.
+    </div>
+
+  </div>
 </div>
-{% endif %}
+{% endmacro %}
+
+
+<div class="page-wrapper">
+
+  <!-- ── Header ─────────────────────────────────────────────── -->
+  <header class="site-header">
+    <h1>🧬 MedAI Prediction System</h1>
+    <p>AI-powered risk assessment for Heart Disease, Diabetes &amp; Breast Cancer</p>
+    <div class="header-nav">
+      <a href="/history">📋 View Patient History</a>
+    </div>
+  </header>
+
+  <!-- ── Landing prompt (shown only when no tab is active) ──── -->
+  <div id="landing" class="landing-prompt">
+    <div class="landing-grid">
+
+      <button class="landing-card heart-card" onclick="showTab('heart')">
+        <div class="landing-icon">❤️</div>
+        <div class="landing-title">Heart Disease</div>
+        <div class="landing-desc">Assess cardiovascular risk from 13 clinical indicators</div>
+        <div class="landing-cta">Start Assessment →</div>
+      </button>
+
+      <button class="landing-card diabetes-card" onclick="showTab('diabetes')">
+        <div class="landing-icon">🩸</div>
+        <div class="landing-title">Diabetes</div>
+        <div class="landing-desc">Predict diabetes risk from glucose, BMI and metabolic markers</div>
+        <div class="landing-cta">Start Assessment →</div>
+      </button>
+
+      <button class="landing-card cancer-card" onclick="showTab('cancer')">
+        <div class="landing-icon">🎗</div>
+        <div class="landing-title">Breast Cancer</div>
+        <div class="landing-desc">Classify tumour characteristics from cell nucleus measurements</div>
+        <div class="landing-cta">Start Assessment →</div>
+      </button>
+
+    </div>
+    <p class="landing-hint">Select a disease above to begin your risk assessment</p>
+  </div>
+
+  <!-- ── Tab buttons (shown only after a tab is chosen) ──────── -->
+  <div id="tab-bar" class="tab-buttons" style="display:none;">
+    <button id="btn-heart"    class="tab-btn heart-btn"    onclick="showTab('heart')">❤️ Heart Disease</button>
+    <button id="btn-diabetes" class="tab-btn diabetes-btn" onclick="showTab('diabetes')">🩸 Diabetes</button>
+    <button id="btn-cancer"   class="tab-btn cancer-btn"   onclick="showTab('cancer')">🎗 Breast Cancer</button>
+    <button class="tab-btn back-btn" onclick="goHome()">← Change</button>
+  </div>
+
+  <!-- ── Error banner ───────────────────────────────────────── -->
+  {% if error %}
+  <div class="error-box">⚠️ <strong>Error:</strong> {{ error }}</div>
+  {% endif %}
+
+  <!-- ════════════════════════════════════════════════════════
+       HEART TAB
+       ════════════════════════════════════════════════════════ -->
+  <div id="heart" class="tab-content">
+    <h2>❤️ Heart Disease Risk Assessment</h2>
+
+    <form action="/predict/heart" method="post">
+      <div class="patient-row">
+        <label for="h-pid">Patient ID (optional)</label>
+        <input id="h-pid" name="patient_id" type="text" placeholder="e.g. PT-001">
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Age (years)</label>
+          <input name="age" type="number" min="20" max="100" placeholder="e.g. 55" required>
+        </div>
+        <div class="form-group">
+          <label>Sex</label>
+          <select name="sex">
+            <option value="1">Male</option>
+            <option value="0">Female</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Chest Pain Type</label>
+          <select name="cp">
+            <option value="0">Typical Angina</option>
+            <option value="1">Atypical Angina</option>
+            <option value="2">Non-anginal Pain</option>
+            <option value="3">Asymptomatic</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Resting Blood Pressure (mmHg)</label>
+          <input name="trestbps" type="number" min="80" max="200" placeholder="e.g. 130" required>
+        </div>
+        <div class="form-group">
+          <label>Cholesterol (mg/dl)</label>
+          <input name="chol" type="number" min="100" max="600" placeholder="e.g. 240" required>
+        </div>
+        <div class="form-group">
+          <label>Fasting Blood Sugar &gt; 120 mg/dl</label>
+          <select name="fbs">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Resting ECG</label>
+          <select name="restecg">
+            <option value="0">Normal</option>
+            <option value="1">ST-T Abnormality</option>
+            <option value="2">LV Hypertrophy</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Max Heart Rate Achieved</label>
+          <input name="thalach" type="number" min="60" max="220" placeholder="e.g. 150" required>
+        </div>
+        <div class="form-group">
+          <label>Exercise-Induced Angina</label>
+          <select name="exang">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Oldpeak — ST Depression (0–6)</label>
+          <input name="oldpeak" type="number" step="0.1" min="0" max="6" placeholder="e.g. 1.5" required>
+        </div>
+        <div class="form-group">
+          <label>Slope of ST Segment</label>
+          <select name="slope">
+            <option value="0">Upsloping</option>
+            <option value="1">Flat</option>
+            <option value="2">Downsloping</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Major Vessels (0–3)</label>
+          <select name="ca">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Thalassemia</label>
+          <select name="thal">
+            <option value="0">Normal</option>
+            <option value="1">Fixed Defect</option>
+            <option value="2">Reversible Defect</option>
+            <option value="3">Unknown</option>
+          </select>
+        </div>
+        <div class="form-group submit-row">
+          <button type="submit" class="btn-predict btn-heart">🔍 Analyse Heart Risk</button>
+        </div>
+      </div>
+    </form>
+
+    {% if heart_result %}
+    {{ result_card(heart_result, "heart", "Heart Disease") }}
+    {% endif %}
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       DIABETES TAB
+       ════════════════════════════════════════════════════════ -->
+  <div id="diabetes" class="tab-content">
+    <h2>🩸 Diabetes Risk Assessment</h2>
+
+    <form action="/predict/diabetes" method="post">
+      <div class="patient-row">
+        <label for="d-pid">Patient ID (optional)</label>
+        <input id="d-pid" name="patient_id" type="text" placeholder="e.g. PT-001">
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Pregnancies</label>
+          <input name="pregnancies" type="number" min="0" max="20" placeholder="e.g. 2" required>
+        </div>
+        <div class="form-group">
+          <label>Glucose (mg/dl)</label>
+          <input name="glucose" type="number" min="50" max="200" placeholder="e.g. 120" required>
+        </div>
+        <div class="form-group">
+          <label>Blood Pressure (mmHg)</label>
+          <input name="blood_pressure" type="number" min="40" max="140" placeholder="e.g. 80" required>
+        </div>
+        <div class="form-group">
+          <label>Skin Thickness (mm)</label>
+          <input name="skin_thickness" type="number" min="0" max="100" placeholder="e.g. 20" required>
+        </div>
+        <div class="form-group">
+          <label>Insulin (μU/ml)</label>
+          <input name="insulin" type="number" min="0" max="900" placeholder="e.g. 80" required>
+        </div>
+        <div class="form-group">
+          <label>BMI</label>
+          <input name="bmi" type="number" step="0.1" min="10" max="70" placeholder="e.g. 28.5" required>
+        </div>
+        <div class="form-group">
+          <label>Diabetes Pedigree Function</label>
+          <input name="dpf" type="number" step="0.01" min="0" max="2.5" placeholder="e.g. 0.47" required>
+        </div>
+        <div class="form-group">
+          <label>Age (years)</label>
+          <input name="age" type="number" min="1" max="120" placeholder="e.g. 33" required>
+        </div>
+        <div class="form-group submit-row">
+          <button type="submit" class="btn-predict btn-diabetes">🔍 Analyse Diabetes Risk</button>
+        </div>
+      </div>
+    </form>
+
+    {% if diabetes_result %}
+    {{ result_card(diabetes_result, "diabetes", "Diabetes") }}
+    {% endif %}
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       CANCER TAB
+       ════════════════════════════════════════════════════════ -->
+  <div id="cancer" class="tab-content">
+    <h2>🎗 Breast Cancer Risk Assessment</h2>
+    <p class="text-muted" style="font-size:.85rem;margin-bottom:18px;">
+      Enter the five primary cell nucleus measurements. The remaining 25 features are estimated from population averages.
+    </p>
+
+    <form action="/predict/cancer" method="post">
+      <div class="patient-row">
+        <label for="c-pid">Patient ID (optional)</label>
+        <input id="c-pid" name="patient_id" type="text" placeholder="e.g. PT-001">
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Mean Radius (6–28)</label>
+          <input name="radius" type="number" step="0.01" min="0" max="50" placeholder="e.g. 14.0" required>
+        </div>
+        <div class="form-group">
+          <label>Mean Texture (9–40)</label>
+          <input name="texture" type="number" step="0.01" min="0" max="50" placeholder="e.g. 19.0" required>
+        </div>
+        <div class="form-group">
+          <label>Mean Perimeter (40–190)</label>
+          <input name="perimeter" type="number" step="0.01" min="0" max="300" placeholder="e.g. 92.0" required>
+        </div>
+        <div class="form-group">
+          <label>Mean Area (140–2500)</label>
+          <input name="area" type="number" step="0.01" min="0" max="3000" placeholder="e.g. 655" required>
+        </div>
+        <div class="form-group">
+          <label>Mean Smoothness (0.05–0.16)</label>
+          <input name="smoothness" type="number" step="0.0001" min="0" max="1" placeholder="e.g. 0.096" required>
+        </div>
+        <div class="form-group submit-row">
+          <button type="submit" class="btn-predict btn-cancer">🔍 Analyse Cancer Risk</button>
+        </div>
+      </div>
+    </form>
+
+    {% if cancer_result %}
+    {{ result_card(cancer_result, "cancer", "Breast Cancer") }}
+    {% endif %}
+  </div>
+
+</div>
+
+<script>
+
+  const SERVER_ACTIVE = '{{ active_tab | default("") }}';
+
+  function showTab(tabId) {
+    // Hide landing, show tab bar
+    document.getElementById('landing').style.display  = 'none';
+    document.getElementById('tab-bar').style.display  = 'flex';
+
+    // Hide all tab panels, deactivate all buttons
+    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+    // Show chosen panel and mark button active
+    document.getElementById(tabId).style.display = 'block';
+    const btn = document.getElementById('btn-' + tabId);
+    if (btn) btn.classList.add('active');
+
+    animateBars();
+  }
+
+  function goHome() {
+    // Hide tab bar and all panels, show landing
+    document.getElementById('tab-bar').style.display = 'none';
+    document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('landing').style.display = 'block';
+  }
+
+  function animateBars() {
+    document.querySelectorAll('[data-width]').forEach(el => {
+      const target = el.getAttribute('data-width');
+      setTimeout(() => { el.style.width = target + '%'; }, 80);
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    if (SERVER_ACTIVE) {
+      showTab(SERVER_ACTIVE);
+    }
+  });
+</script>
 
 </body>
 </html>

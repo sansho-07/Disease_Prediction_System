@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prediction History — MedAI</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .stat-heart    { color: #f87171; }
+    .stat-diabetes { color: #c084fc; }
+    .stat-cancer   { color: #f472b6; }
+    .bar-high      { background: #ef4444; }
+    .bar-medium    { background: #f59e0b; }
+    .bar-low       { background: #22c55e; }
+    .prob-bar-fill { height: 100%; border-radius: 3px; width: 0; }
+  </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+  <header class="site-header">
+    <h1>📋 Prediction History</h1>
+    <p>All logged predictions stored locally</p>
+    <div class="header-nav">
+      <a href="/">← Back to Predictions</a>
+    </div>
+  </header>
+
+  <!-- ── Stats cards ─────────────────────────────────────────── -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-num" style="color:#60a5fa;">{{ stats.total or 0 }}</div>
+      <div class="stat-label">Total Predictions</div>
+    </div>
+    {% for disease, counts in (stats.by_disease or {}).items() %}
+    <div class="stat-card">
+      <div class="stat-num stat-{{ disease }}">
+        {{ counts.values() | sum }}
+      </div>
+      <div class="stat-label">{{ disease | capitalize }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ── Table ───────────────────────────────────────────────── -->
+  <div class="section-title">Recent Predictions</div>
+
+  {% if rows %}
+  <div class="history-table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Disease</th>
+          <th>Diagnosis</th>
+          <th>Probability</th>
+          <th>Risk</th>
+          <th>Top Factor</th>
+          <th>Time (UTC)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        {% set rl = row.risk_level | lower | replace(' ', '-') %}
+        {% set bar_class = 'bar-high' if rl == 'high-risk' else ('bar-medium' if rl == 'medium-risk' else 'bar-low') %}
+        {% set bar_width = (row.probability * 100) | round(0) | int %}
+        <tr>
+          <td class="text-muted">{{ row.id }}</td>
+          <td>
+            <span class="disease-tag tag-{{ row.disease }}">{{ row.disease }}</span>
+          </td>
+          <td>
+            {% if row.disease == 'cancer' %}
+              {{ '⚠️ Malignant' if row.prediction == 0 else '✅ Benign' }}
+            {% else %}
+              {{ '⚠️ Positive' if row.prediction == 1 else '✅ Negative' }}
+            {% endif %}
+          </td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:6px;background:var(--border);border-radius:3px;min-width:60px;">
+                <div class="{{ bar_class }} prob-bar-fill"
+                     data-width="{{ bar_width }}"></div>
+              </div>
+              <span style="font-size:.8rem;color:var(--muted);">
+                {{ (row.probability * 100) | round(1) }}%
+              </span>
+            </div>
+          </td>
+          <td><span class="badge badge-{{ rl }}">{{ row.risk_level }}</span></td>
+          <td style="font-size:.82rem;color:var(--muted);">
+            {% if row.explanation %}{{ row.explanation[0].feature_name }}{% endif %}
+          </td>
+          <td style="font-size:.78rem;color:var(--muted);">{{ row.created_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="text-muted" style="text-align:center;padding:40px 0;">
+    No predictions yet. Run a prediction to see history here.
+  </p>
+  {% endif %}
+
+</div>
+
+<script>
+  document.querySelectorAll('.prob-bar-fill[data-width]').forEach(el => {
+    el.style.width = el.dataset.width + '%';
+  });
+</script>
+
+</body>
+</html>
