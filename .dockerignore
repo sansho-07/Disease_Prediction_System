@@ -21,7 +21,8 @@ venv/
 .DS_Store
 
 # Raw data (large CSVs not needed at runtime — models are pre-trained)
-data/raw/
+# NOTE: data/raw/ must be included — breast_cancer.csv is needed at startup
+#       to compute the cancer feature baseline vector.
 
 # Docs
 README.md
