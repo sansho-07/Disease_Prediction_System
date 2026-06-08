@@ -8,7 +8,7 @@ app_port: 7860
 pinned: false
 ---
 
-"See it online: https://huggingface.co/spaces/saansho/Disease_Prediction_System"
+[ Live Demo: https://huggingface.co/spaces/saansho/Disease_Prediction_System ]
 
 
 # 🧬 MedAI — Disease Prediction System
